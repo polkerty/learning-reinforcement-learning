@@ -34,6 +34,8 @@ class TicTacToeState:
             if w == self.state[0][2] == self.state[1][1] == self.state[2][0]:
                 return w
 
+        return 0
+
     def neighbors(self) -> list['TicTacToeState']:
         if self.winner:
             return []

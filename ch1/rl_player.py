@@ -50,7 +50,7 @@ class RLPlayer(Agent):
         else:
             self.last_move_was_greedy = True
             self.last_move = self.rank_neighbors(cur_state)[0]
-            return
+            return self.last_move
 
     def new_game(self):
         self.last_move_was_greedy = False
