@@ -1,91 +1,38 @@
 '''
 Tic-Tac-Toe
 '''
+from rl_player import RLPlayer
+from random_player import RandomPlayer
+from state import TicTacToeState
+from agent import Agent
 
 
-class TicTacToeState:
-    def __init__(self, state=None):
-        if not state:
-            state = ((0,) * 3,) * 3
-        self.state = state
+class Game:
+    def __init__(self, agent1: Agent, agent2: Agent):
+        self.agent1 = agent1
+        self.agent2 = agent2
 
-        self.winner = self.compute_winner()
-        self.turn = self.compute_turn()
+    def play(self):
+        agent1.new_game()
+        agent2.new_game()
+        state = TicTacToeState()
 
-        self.value = 0.5
+        print(state)
 
-    def compute_turn(self):
-        x_count = sum(cell == 1 for row in self.state for cell in row)
-        o_count = sum(cell == 2 for row in self.state for cell in row)
+        while len(state.neighbors()):
+            agent = self.agent1 if state.turn == 1 else self.agent2
+            choice = agent.move(state.state, [n.state for n in state.neighbors()])
+            state = TicTacToeState(choice)
 
-        turn = 1 if x_count <= o_count else 2
-        return turn
+            print(state)
 
-    def compute_winner(self):
-        for w in [1, 2]:
-            if (w,) * 3 in self.state:
-                return w
-
-            for col in range(3):
-                if w == self.state[0][col] == self.state[1][col] == self.state[2][col]:
-                    return w
-
-            if w == self.state[0][0] == self.state[1][1] == self.state[2][2]:
-                return w
-            if w == self.state[0][2] == self.state[1][1] == self.state[2][0]:
-                return w
-
-    def neighbors(self):
-        if self.winner:
-            return []
-
-        neighbors = []
-
-        for row in range(3):
-            for col in range(3):
-                if self.state[row][col] == 0:
-                    state = self.state[:row] + (
-                        self.state[row][:col] + (self.turn,) + self.state[row][col + 1:],) + self.state[row + 1:]
-                    neighbors.append(TicTacToeState(state))
-
-        return neighbors
-
-    def __str__(self):
-        ret = ''
-        for ri, row in enumerate(self.state):
-            if ri == 0:
-                ret += '_' * (len(row) * 2 + 1) + '\n'
-            for ci, col in enumerate(row):
-                if ci == 0:
-                    ret += '|'
-                ret += 'X' if col == 1 else 'O' if col == 2 else ' '
-                ret += '|'
-            ret += '\n'
-
-            ret += '_' * (len(row) * 2 + 1) + '\n'
-
-        return ret
-
-
-class RLEngine:
-    def __init__(self):
-        # construct our model
-        self.state = self.build_states()
-
-    def build_states(self):
-        states = dict()
-        q = [TicTacToeState()]
-        while len(q):
-            top = q.pop()
-            if top.state in states:
-                continue
-            states[top.state] = top
-            q.extend(top.neighbors())
-
-        return states
+        agent1.game_over(state.state, state.winner == 1)
+        agent2.game_over(state.state, state.winner == 2)
 
 
 if __name__ == '__main__':
-    game = RLEngine()
+    agent1: Agent = RLPlayer()
+    agent2: Agent = RandomPlayer()
+    game = Game(agent1, agent2)
 
-    print(len(game.state))
+    game.play()
