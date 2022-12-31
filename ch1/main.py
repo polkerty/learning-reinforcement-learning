@@ -67,10 +67,25 @@ class TicTacToeState:
         return ret
 
 
+class RLEngine:
+    def __init__(self):
+        # construct our model
+        self.state = self.build_states()
+
+    def build_states(self):
+        states = dict()
+        q = [TicTacToeState()]
+        while len(q):
+            top = q.pop()
+            if top.state in states:
+                continue
+            states[top.state] = top
+            q.extend(top.neighbors())
+
+        return states
+
+
 if __name__ == '__main__':
-    game = TicTacToeState()
+    game = RLEngine()
 
-    print(game)
-
-    for neighbor in game.neighbors():
-        print(neighbor)
+    print(len(game.state))
